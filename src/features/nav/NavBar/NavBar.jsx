@@ -1,20 +1,20 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { withFirebase } from 'react-redux-firebase'; //bawa fungsi firebase untuk logout
+import { withFirebase } from 'react-redux-firebase';
 import { Menu, Container, Button } from 'semantic-ui-react';
 import { NavLink, Link, withRouter } from 'react-router-dom';
 import SignedOutMenu from '../Menus/SignedOutMenu';
 import SignedInMenu from '../Menus/SignedInMenu';
 import { openModal } from '../../modals/modalActions';
 
+const mapState = state => ({
+  auth: state.firebase.auth,
+  profile: state.firebase.profile
+});
+
 const actions = {
   openModal
 };
-
-const mapState = state => ({
-  auth: state.firebase.auth,
-  profile: state.firebase.auth
-});
 
 class NavBar extends Component {
   handleSignIn = () => {
@@ -57,8 +57,9 @@ class NavBar extends Component {
               </Menu.Item>
             </Fragment>
           )}
+
           {authenticated ? (
-            <SignedInMenu profile={profile} signOut={this.handleSignOut} />
+            <SignedInMenu signOut={this.handleSignOut} profile={profile} />
           ) : (
             <SignedOutMenu signIn={this.handleSignIn} register={this.handleRegister} />
           )}
