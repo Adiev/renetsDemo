@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import { Menu, Header } from 'semantic-ui-react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 
 const SettingsNav = () => {
   return (
@@ -19,7 +19,9 @@ const SettingsNav = () => {
       </Menu>
       <Menu vertical>
         <Header icon='settings' attached inverted color='grey' content='Account' />
-        <Menu.Item>My Account</Menu.Item>
+        <Menu.Item as={Link} to='/settings/account'>
+          My Account
+        </Menu.Item>
       </Menu>
     </Fragment>
   );
