@@ -1,13 +1,15 @@
 import { toastr } from 'react-redux-toastr';
 import { asyncActionStart, asyncActionFinish, asyncActionError } from '../async/asyncActions';
 import cuid from 'cuid';
+import firebase from '../../app/config/firebase';
+import { FETCH_EVENTS } from '../event/eventConstants';
 
 export const updateProfile = user => async (dispatch, getState, { getFirebase }) => {
   const firebase = getFirebase();
   const { isLoaded, isEmpty, ...updatedUser } = user;
   try {
     await firebase.updateProfile(updatedUser);
-    toastr.success('Selamat', 'profile anda berhasil berubah');
+    toastr.success('Success', 'Your profile has been updated');
   } catch (error) {
     console.log(error);
   }
@@ -26,7 +28,6 @@ export const uploadProfileImage = (file, fileName) => async (
   const options = {
     name: imageName
   };
-
   try {
     dispatch(asyncActionStart());
     // upload the file to firebase storage
@@ -35,7 +36,7 @@ export const uploadProfileImage = (file, fileName) => async (
     let downloadURL = await uploadedFile.uploadTaskSnapshot.ref.getDownloadURL();
     // get userdoc
     let userDoc = await firestore.get(`users/${user.uid}`);
-    // check if user has photo , if not update profile
+    // check if user has photo, if not update profile
     if (!userDoc.data().photoURL) {
       await firebase.updateProfile({
         photoURL: downloadURL
@@ -76,7 +77,7 @@ export const deletePhoto = photo => async (dispatch, getState, { getFirebase, ge
     });
   } catch (error) {
     console.log(error);
-    throw new Error('Ada masalah dalam proses penghapusan foto');
+    throw new Error('Problem deleting the photo');
   }
 };
 
@@ -88,7 +89,7 @@ export const setMainPhoto = photo => async (dispatch, getState, { getFirebase })
     });
   } catch (error) {
     console.log(error);
-    throw new Error('Ada masalah dalam pengaturan foto utama');
+    throw new Error('Problem setting main photo');
   }
 };
 
@@ -138,5 +139,56 @@ export const cancelGoingToEvent = event => async (
   } catch (error) {
     console.log(error);
     toastr.error('Oops', 'Something went wrong');
+  }
+};
+
+export const getUserEvents = (userUid, activeTab) => async (dispatch, getState) => {
+  dispatch(asyncActionStart());
+  const firestore = firebase.firestore();
+  const today = new Date();
+  let eventsRef = firestore.collection('event_attendee');
+  let query;
+  switch (activeTab) {
+    case 1: // past events
+      query = eventsRef
+        .where('userUid', '==', userUid)
+        .where('eventDate', '<=', today)
+        .orderBy('eventDate', 'desc');
+      break;
+    case 2: // future events
+      query = eventsRef
+        .where('userUid', '==', userUid)
+        .where('eventDate', '>=', today)
+        .orderBy('eventDate');
+      break;
+    case 3: // hosted events
+      query = eventsRef
+        .where('userUid', '==', userUid)
+        .where('host', '==', true)
+        .orderBy('eventDate', 'desc');
+      break;
+    default:
+      query = eventsRef.where('userUid', '==', userUid).orderBy('eventDate', 'desc');
+      break;
+  }
+
+  try {
+    let querySnap = await query.get();
+    let events = [];
+
+    for (let i = 0; i < querySnap.docs.length; i++) {
+      let evt = await firestore
+        .collection('events')
+        .doc(querySnap.docs[i].data().eventId)
+        .get();
+      events.push({ ...evt.data(), id: evt.id });
+    }
+
+    dispatch({ type: FETCH_EVENTS, payload: { events } });
+
+    dispatch(asyncActionFinish());
+  } catch (error) {
+    console.log(error);
+    dispatch(asyncActionError());
   }
 };
