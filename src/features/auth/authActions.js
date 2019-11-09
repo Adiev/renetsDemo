@@ -24,7 +24,6 @@ export const registerUser = user => async (dispatch, getState, { getFirebase, ge
     let createdUser = await firebase
       .auth()
       .createUserWithEmailAndPassword(user.email, user.password);
-    console.log(createdUser);
     await createdUser.user.updateProfile({
       displayName: user.displayName
     });
@@ -62,7 +61,6 @@ export const socialLogin = selectedProvider => async (
         createdAt: firestore.FieldValue.serverTimestamp()
       });
     }
-    // console.log(user);
   } catch (error) {
     console.log(error);
   }
