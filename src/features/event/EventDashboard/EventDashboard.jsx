@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Grid, Button, Loader } from 'semantic-ui-react';
+import { Grid, Loader } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import EventList from '../EventList/EventList';
 import { getEventsForDashboard } from '../eventActions';

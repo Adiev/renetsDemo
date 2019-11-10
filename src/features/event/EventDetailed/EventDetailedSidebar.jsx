@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 import { Segment, Item, Label } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 
-const EventDetailedSitebar = ({ attendees }) => {
+const EventDetailedSidebar = ({ attendees }) => {
   const isHost = false;
   return (
     <Fragment>
@@ -14,8 +14,8 @@ const EventDetailedSitebar = ({ attendees }) => {
         inverted
         color='teal'
       >
-        {attendees && attendees.length}{' '}
-        {attendees && attendees.length === 1 ? 'Orang' : 'Penyelenggara'} Aktif
+        {attendees && attendees.length} {attendees && attendees.length === 1 ? 'Person' : 'People'}{' '}
+        Going
       </Segment>
       <Segment attached>
         <Item.Group divided>
@@ -41,4 +41,4 @@ const EventDetailedSitebar = ({ attendees }) => {
   );
 };
 
-export default EventDetailedSitebar;
+export default EventDetailedSidebar;
